@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store', [OrdemServicoController::class, 'store'])->name('os.store');
         Route::get('/edit/{id}', [OrdemServicoController::class, 'edit'])->name('os.edit');
         Route::get('/print/{id}', [OrdemServicoController::class, 'print'])->name('os.print');
+        Route::post('/send-email/{id}', [OrdemServicoController::class, 'sendEmail'])->name('os.sendEmail');
     });
 
     Route::prefix('clientes')->group(function () {

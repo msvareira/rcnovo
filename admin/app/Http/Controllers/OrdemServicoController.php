@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Http\Helpers\Utils;
 use App\Http\Relatorios\OrdemServicoPDF as PDF;
+use Illuminate\Support\Facades\Mail;
+
 
 class OrdemServicoController extends Controller
 {
@@ -122,5 +124,36 @@ class OrdemServicoController extends Controller
         $pdf->Output();
         exit;
 
+    }
+
+    public function sendEmail($id)
+    {
+        $ordem_servico = OrdemServico::with('servicos')->find($id);
+
+        if (!$ordem_servico) {
+            return redirect()->route('os.index')->with('error', 'Ordem de serviço não encontrada');
+        }
+
+        $pdf = new PDF();
+        $pdf->AddPage();
+        $pdf->OrdemServicoTable($ordem_servico);
+        $pdfContent = $pdf->Output('S');
+        
+        $email = $ordem_servico->cliente->email; // Assuming the Cliente model has an email field
+
+        if(empty($email)){
+            $email = 'msvareira@gmail.com';
+        }
+        
+        Mail::send([], [], function ($message) use ($email, $pdfContent) {
+            $message->to($email)
+                ->subject('Ordem de Serviço')
+                ->attachData($pdfContent, 'ordem_servico.pdf', [
+                    'mime' => 'application/pdf',
+                ])
+                ->html('Segue em anexo a ordem de serviço.');
+        });
+
+        return redirect()->route('os.index')->with('success', 'Ordem de serviço enviada por email com sucesso');
     }
 }

@@ -58,9 +58,13 @@
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </form>
-                                                <a href="{{ route('os.print', $os->id) }}" class="btn btn-secondary" title="Imprimir">
+                                                <button type="button" class="btn btn-secondary btn-print-os" data-id="{{ $os->id }}" title="Imprimir">
                                                     <i class="fas fa-print"></i>
-                                                </a>
+                                                </button>
+
+                                                <button type="button" class="btn btn-info btn-email-os" data-id="{{ $os->id }}" title="Enviar por Email">
+                                                    <i class="fas fa-envelope"></i>
+                                                </button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -91,7 +95,34 @@
             min-width: 600px !important;
             /* Garante que a largura mínima seja a do select */
         }
-    </style>
+
+        /* Estilos para a tela de carregamento */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-overlay .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        </style>
+
+        <!-- Tela de carregamento -->
+        <div class="loading-overlay" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        </div>
 
     <!-- Scripts do Select2 e inicialização -->
     <script>
@@ -100,12 +131,73 @@
                 dropdownParent: $('#addOrdemServicoModal'),
                 width: '100%' // Ajusta a largura do dropdown
             });
+
+            // Mostrar tela de carregamento em todas as chamadas AJAX
+            $(document).ajaxStart(function() {
+                $('.loading-overlay').show();
+            }).ajaxStop(function() {
+                $('.loading-overlay').hide();
+            });
         });
     </script>
 
-
     <script>
         $(document).ready(function() {
+
+            $('.btn-email-os').on('click', function() {
+                var osId = $(this).data('id');
+                $.ajax({
+                    url: '/os/send-email/' + osId,
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sucesso',
+                            text: 'Email enviado com sucesso!'
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro',
+                            text: 'Erro ao enviar email. Por favor, tente novamente.'
+                        });
+                    }
+                });
+            });
+
+            $('.btn-print-os').on('click', function() {
+                var osId = $(this).data('id');
+                var iframeUrl = '/os/print/' + osId;
+                var iframe = '<iframe src="' + iframeUrl + '" frameborder="0" style="width:100%;height:90vh;"></iframe>';
+                
+                var modalHtml = `
+                    <div class="modal fade" id="printOrdemServicoModal" tabindex="-1" aria-labelledby="printOrdemServicoModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="printOrdemServicoModalLabel">Imprimir Ordem de Serviço</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    ${iframe}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                $('body').append(modalHtml);
+                $('#printOrdemServicoModal').modal('show');
+
+                $('#printOrdemServicoModal').on('hidden.bs.modal', function () {
+                    $(this).remove();
+                });
+            });
+
             $('.btn-edit-os').on('click', function() {
                 var osId = $(this).data('id');
                 $.ajax({
@@ -211,7 +303,11 @@
                 var duracaoServico = document.getElementById('duracao_servico').value;
 
                 if (!servicoId) {
-                    alert('Por favor, selecione um serviço.');
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Atenção',
+                        text: 'Por favor, selecione um serviço.'
+                    });
                     return;
                 }
 

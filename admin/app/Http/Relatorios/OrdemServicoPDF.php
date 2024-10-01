@@ -29,12 +29,7 @@ class OrdemServicoPDF extends Fpdf
 
     function Footer()
     {
-        // Draw border for footer
-        $this->Rect(10, -25, 190, 15);
-        
-        $this->SetY(-15);
-        $this->SetFont('Arial', 'I', 8);
-        $this->Cell(0, 10, utf8_decode('Page ') . $this->PageNo(), 0, 0, 'C');
+
     }
 
     function OrdemServicoTable($ordem_servico)
@@ -134,15 +129,22 @@ class OrdemServicoPDF extends Fpdf
         $this->Ln(21); // Adjust to leave space for manual writing
 
         // Draw border for order number and signatures
-        $this->Rect(10, $this->GetY(), 190, 20); // Adjust height as needed
+        //$this->Rect(10, $this->GetY(), 190, 20); // Adjust height as needed
         $this->SetFont('Arial', 'B', 12);
-        $this->Cell(0, 7, utf8_decode('Número OS: ') . utf8_decode($ordem_servico->numero), 0, 1);
+        $this->Cell(0, 7, utf8_decode('Número OS: ') . utf8_decode($ordem_servico->id), 0, 1);
         $this->Ln(7); // Adjust to leave space for signatures
 
+        $this->setY($this->GetY() + 10);
         // Add signature fields
         $this->SetFont('Arial', '', 12);
-        $this->Cell(95, 7, utf8_decode('Assinatura do Prestador de Serviço'), 0, 0, 'C');
-        $this->Cell(95, 7, utf8_decode('Assinatura do Cliente'), 0, 1, 'C');
+        $this->Cell(90, 7, utf8_decode('Assinatura do Prestador de Serviço'), 0, 0, 'C');
+        $this->Cell(105, 7, utf8_decode('Assinatura do Cliente'), 0, 1, 'C');
+        
+        // Draw lines above each signature
+        $this->Line(15, $this->GetY() - 7, 95, $this->GetY() - 7); // Line for service provider signature
+        $this->Line(110, $this->GetY() - 7, 195, $this->GetY() - 7); // Line for client signature
+        
+        
         $this->Ln(10); // Adjust to leave space for signatures
     }
 }
