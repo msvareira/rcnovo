@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+
+  refrigeracao-www:
+    restart: always
+    container_name: refrigeracao-www
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7780:80"
+    volumes:
+      - ./apache-config.conf:/etc/apache2/sites-available/000-default.conf
+      - .:/var/www/html
+    depends_on:
+      - refrigeracao-db
+
+  refrigeracao-db:
+    restart: always
+    container_name: refrigeracao-db
+    image: mysql:8.3
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: aA@root1
+      MYSQL_DATABASE: refrigeracao
+      MYSQL_USER: aplicacao
+      MYSQL_PASSWORD: aA@aplicacao1
+    ports:
+      - "7706:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+
+  refrigeracao-db-original:
+    container_name: refrigeracao-db-original
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: aA@root1
+      MYSQL_DATABASE: refrigeracao
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_data_original:/var/lib/mysql
+
+
+volumes:
+  mysql_data:
+    driver: local
