@@ -17,4 +17,19 @@ class ServicosOS extends Model
         'descricao_execucao',
         'duracao',
     ];
+
+    public function ordemServico()
+    {
+        return $this->belongsTo(OrdemServico::class);
+    }
+
+    public function servico()
+    {
+        return $this->belongsTo(Servicos::class);
+    }
+
+    public function anexos()
+    {
+        return $this->hasMany(ServicosOSAnexos::class);
+    }
 }

@@ -8,6 +8,7 @@ use App\Models\Clientes;
 use App\Models\User;
 use App\Models\Funcionarios;
 
+
 class OrdemServico extends Model
 {
     use HasFactory;
@@ -44,8 +45,10 @@ class OrdemServico extends Model
 
     public function servicos()
     {
-        return $this->belongsToMany(Servicos::class, 'servicos_os', 'ordem_servico_id', 'servico_id')->withPivot(['valor','descricao_execucao', 'duracao']);
+        return $this->belongsToMany(Servicos::class, 'servicos_os', 'ordem_servico_id', 'servico_id',)->withPivot(['valor','descricao_execucao', 'duracao','id']);
     }
+
+
 
 
 }

@@ -34,6 +34,7 @@
                                         <th>CPF/CNPJ</th>
                                         <th>Data OS</th>
                                         <th>Total Serviços</th>
+                                        <th>Status</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
@@ -48,16 +49,24 @@
                                             <td>{{ \App\Http\Helpers\Utils::formatardata($os->data) }}</td>
                                             <td>{{ number_format($os->servicos->sum('pivot.valor'), 2, ',', '.') }}</td>
                                             <td>
-                                                <a href="#" class="btn btn-primary btn-edit-os" data-id="{{ $os->id }}" title="Editar">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="{{ route('os.destroy', $os->id) }}" method="POST" style="display: inline;" class="form-delete">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger" title="Excluir">
-                                                        <i class="fas fa-trash-alt"></i>
-                                                    </button>
-                                                </form>
+                                                @if ($os->status == 'Aberta')
+                                                    <span class="badge bg-warning">{{ $os->status }}</span>
+                                                @elseif ($os->status == 'Concluída')
+                                                    <span class="badge bg-success">{{ $os->status }}</span>
+                                                @elseif ($os->status == 'Faturada')
+                                                    <span class="badge bg-primary">{{ $os->status }}</span>
+                                                @elseif ($os->status == 'Cancelada')
+                                                    <span class="badge bg-danger">{{ $os->status }}</span>
+                                                @else
+                                                    <span class="badge bg-secondary">{{ $os->status }}</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($os->status == 'Aberta')
+                                                    <a href="#" class="btn btn-primary btn-edit-os" data-id="{{ $os->id }}" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                @endif
                                                 <button type="button" class="btn btn-secondary btn-print-os" data-id="{{ $os->id }}" title="Imprimir">
                                                     <i class="fas fa-print"></i>
                                                 </button>
@@ -65,6 +74,28 @@
                                                 <button type="button" class="btn btn-info btn-email-os" data-id="{{ $os->id }}" title="Enviar por Email">
                                                     <i class="fas fa-envelope"></i>
                                                 </button>
+
+                                                @if ($os->status != 'Faturada')
+                                                    @if ($os->status == 'Concluída')
+                                                        <button type="button" class="btn btn-warning btn-reopen-os" data-id="{{ $os->id }}" title="Reabrir">
+                                                            <i class="fas fa-undo"></i>
+                                                        </button>
+                                                    @else
+                                                        <button type="button" class="btn btn-success btn-complete-os" data-id="{{ $os->id }}" title="Concluir">
+                                                            <i class="fas fa-check"></i>
+                                                        </button>
+                                                    @endif
+
+                                                    <form action="{{ route('os.destroy', $os->id) }}" method="POST" style="display: inline;" class="form-delete">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger" title="Excluir">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>                                                
+    
+                                                @endif
+
                                             </td>
                                         </tr>
                                     @endforeach
@@ -85,17 +116,6 @@
     <script src="{{ URL::asset('assets/os/os.js') }}"></script>
     <!-- Adicione o CSS personalizado -->
     <style>
-        .select2-container {
-            z-index: 9999 !important;
-        }
-
-        .select2-dropdown {
-            width: auto !important;
-            /* Ajusta a largura do dropdown */
-            min-width: 600px !important;
-            /* Garante que a largura mínima seja a do select */
-        }
-
         /* Estilos para a tela de carregamento */
         .loading-overlay {
             display: none;
@@ -127,10 +147,110 @@
     <!-- Scripts do Select2 e inicialização -->
     <script>
         $(document).ready(function() {
+
+            $('.btn-complete-os').on('click', function() {
+                var osId = $(this).data('id');
+                Swal.fire({
+                    title: 'Tem certeza?',
+                    text: "Você deseja concluir esta Ordem de Serviço?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sim, concluir!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/os/concluir/' + osId,
+                            method: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sucesso',
+                                    text: 'Ordem de Serviço concluída com sucesso!'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro',
+                                    text: 'Erro ao concluir Ordem de Serviço. Por favor, tente novamente.'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
+
+            $('.btn-reopen-os').on('click', function() {
+                var osId = $(this).data('id');
+                Swal.fire({
+                    title: 'Tem certeza?',
+                    text: "Você deseja reabrir esta Ordem de Serviço?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sim, reabrir!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/os/reabrir/' + osId,
+                            method: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(response) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Sucesso',
+                                    text: 'Ordem de Serviço reaberta com sucesso!'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro',
+                                    text: 'Erro ao reabrir Ordem de Serviço. Por favor, tente novamente.'
+                                });
+                            }
+                        });
+                    }
+                });
+            });
             $('.select2').select2({
                 dropdownParent: $('#addOrdemServicoModal'),
-                width: '100%' // Ajusta a largura do dropdown
+                width: '100%',
+                tags: true,
+                createTag: function (params) {
+                    var term = $.trim(params.term);
+                    if (term === '') {
+                        return null;
+                    }
+                    return {
+                        id: term,
+                        text: term,
+                        newOption: true
+                    };
+                },
+                templateResult: function (data) {
+                    var $result = $("<span></span>");
+                    $result.text(data.text);
+                    if (data.newOption) {
+                        $result.append(" <i class='fas fa-plus-circle'></i>");
+                    }
+                    return $result;
+                }
+
             });
+    
 
             // Mostrar tela de carregamento em todas as chamadas AJAX
             $(document).ajaxStart(function() {
@@ -142,7 +262,19 @@
     </script>
 
     <script>
+
+
         $(document).ready(function() {
+            var ListaDeAnexos = [];
+
+            // Adicionar anexos da ListaDeAnexos ao os_form antes de enviar
+            $('#os_form').on('submit', function(event) {
+                ListaDeAnexos.forEach(function(anexoInput) {
+                    $('#os_form').append(anexoInput);
+                });
+            });
+
+            
 
             $('.btn-email-os').on('click', function() {
                 var osId = $(this).data('id');
@@ -228,6 +360,12 @@
                         var total = 0;
                         data.servicos.forEach(function(servico) {
                             var uniqueId = Date.now() + Math.random(); // Generate a more unique identifier
+                            var anexosHtml = '';
+                            if (servico.anexos) {
+                                servico.anexos.forEach(function(anexo) {
+                                    anexosHtml += `<a href="${anexo.url}" target="_blank">${anexo.descricao}</a><br>`;
+                                });
+                            }
                             var newRow = `
                                 <tr>
                                     <td>
@@ -245,6 +383,9 @@
                                     <td>
                                         <input type="hidden" name="servicos[${uniqueId}][duracao]" value="${servico.duracao}">
                                         ${servico.duracao}
+                                    </td>
+                                    <td>
+                                        ${anexosHtml}
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-danger removeServico">Remover</button>
@@ -301,6 +442,9 @@
                 var descricaoServico = document.getElementById('descricao_servico').value;
                 var valorServico = document.getElementById('valor_servico').value;
                 var duracaoServico = document.getElementById('duracao_servico').value;
+                var anexos = document.getElementById('anexos_servico').files;
+                var anexosServico = document.getElementById('anexos_servico');
+
 
                 if (!servicoId) {
                     Swal.fire({
@@ -316,6 +460,18 @@
 
                 // Generate a unique identifier for each service row
                 var uniqueId = Date.now();
+
+                anexosServico.name = `servicos[${uniqueId}][anexos][]`;
+
+                
+                ListaDeAnexos.push(anexosServico);                
+
+
+                var anexosHtml = '';
+                
+                for (var i = 0; i < anexos.length; i++) {
+                    anexosHtml += `${anexos[i].name}<br>`;
+                }
 
                 newRow.innerHTML = `
                     <td>
@@ -335,6 +491,9 @@
                         ${duracaoServico}
                     </td>
                     <td>
+                        ${anexosHtml}
+                    </td>
+                    <td>
                         <button type="button" class="btn btn-danger removeServico">Remover</button>
                     </td>
                 `;
@@ -351,11 +510,29 @@
                 document.getElementById('descricao_servico').value = '';
                 document.getElementById('valor_servico').value = '';
                 document.getElementById('duracao_servico').value = '';
+                // Hide the current file input and create a new one
+                var oldAnexosInput = document.getElementById('anexos_servico');
+                oldAnexosInput.style.display = 'none';
+                oldAnexosInput.id = 'anexos_servico_' + Date.now();
+
+                var newAnexosInput = document.createElement('input');
+                newAnexosInput.type = 'file';
+                newAnexosInput.className = 'form-control';
+                newAnexosInput.id = 'anexos_servico';
+                newAnexosInput.name = 'anexos_servico[]';
+                newAnexosInput.multiple = true;
+
+                oldAnexosInput.parentNode.insertBefore(newAnexosInput, oldAnexosInput.nextSibling);
 
                 // Add event listener to remove button
                 newRow.querySelector('.removeServico').addEventListener('click', function() {
                     newRow.remove();
                     updateTotal();
+                    // Remove the corresponding input from ListaDeAnexos
+                    ListaDeAnexos = ListaDeAnexos.filter(function(input) {
+                        return input.id !== oldAnexosInput.id;
+                    });
+
                 });
 
                 updateTotal();
@@ -364,20 +541,21 @@
     </script>
     @endsection
 
+
     <!-- Modal for Adding Ordem de Serviço -->
     <div class="modal fade" id="addOrdemServicoModal" tabindex="-1" aria-labelledby="addOrdemServicoModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-lg" style="width: 95%; max-width: none">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="btnAddOrdemServicoModalLabel">Adicionar Ordem de Serviço</h5>
+                    <h5 class="modal-title" id="btnAddOrdemServicoModalLabel">Ordem de Serviço</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="{{ route('os.store') }}" method="POST" name="os_form" id="os_form">
+                <form action="{{ route('os.store') }}" method="POST" name="os_form" id="os_form" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="cliente_id" class="form-label">Cliente:</label><br />
                                     <select class="form-select select2" id="cliente_id" name="cliente_id" required>
@@ -387,7 +565,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="funcionario_id" class="form-label">Funcionário Responsável</label>
                                     <select class="form-select select2" id="funcionario_id" name="funcionario_id" required>
@@ -397,13 +575,13 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="data" class="form-label">Data</label>
                                     <input type="date" class="form-control" id="data" name="data" required>
                                 </div>
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-3">
                                 <div class="mb-3">
                                     <label for="solicitante" class="form-label">Solicitante</label>
                                     <input type="text" class="form-control" id="solicitante" name="solicitante" required>
@@ -427,24 +605,30 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="valor_servico" class="form-label">Valor</label>
-                                        <input type="text" class="form-control currency" id="valor_servico"
-                                            name="valor_servico">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label for="duracao_servico" class="form-label">Duração (em horas)</label>
                                         <input type="number" class="form-control" id="duracao_servico"
                                             name="duracao_servico">
                                     </div>
                                 </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label for="valor_servico" class="form-label">Valor</label>
+                                        <input type="text" class="form-control currency" id="valor_servico"
+                                            name="valor_servico">
+                                    </div>
+                                </div>
                                 <div class="col-md-12">
                                     <div class="mb-3">
                                         <label for="descricao_servico" class="form-label">Descrição do Serviço</label>
                                         <textarea class="form-control" id="descricao_servico" name="descricao_servico" rows="3"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="mb-3">
+                                        <label for="anexos_servico" class="form-label">Anexos</label>
+                                        <input type="file" class="form-control" id="anexos_servico" name="anexos_servico[]" multiple>
                                     </div>
                                 </div>
                             </div>
@@ -456,6 +640,7 @@
                                         <th>Descrição</th>
                                         <th>Valor</th>
                                         <th>Duração</th>
+                                        <th>Anexos</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>

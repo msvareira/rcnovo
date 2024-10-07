@@ -6,6 +6,9 @@ use App\Http\Controllers\OrdemServicoController;
 use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\ContatosController;
+use App\Http\Controllers\ServicoOSAnexosController;
+use App\Http\Controllers\FaturamentoController;
+
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -27,7 +30,7 @@ Auth::routes();
 Route::middleware(['auth'])->group(function () {
     // Define a GET route for the root URL ('/')
     Route::get('/', [HomeController::class, 'dashboard'])->name('dashboard');
-
+    
     Route::prefix('os')->group(function () {
         Route::get('/index', [OrdemServicoController::class, 'index'])->name('os.index');
         Route::any('/form/{id?}', [OrdemServicoController::class, 'form'])->name('os.form'); ;
@@ -36,7 +39,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/edit/{id}', [OrdemServicoController::class, 'edit'])->name('os.edit');
         Route::get('/print/{id}', [OrdemServicoController::class, 'print'])->name('os.print');
         Route::post('/send-email/{id}', [OrdemServicoController::class, 'sendEmail'])->name('os.sendEmail');
+        Route::post('/concluir/{id}', [OrdemServicoController::class, 'concluir'])->name('os.concluir');
+        Route::post('/reabrir/{id}', [OrdemServicoController::class, 'reabrir'])->name('os.reabrir');
     });
+
+
+    Route::prefix('servico_os')->group(function () {
+        Route::prefix('anexos')->group(function () {
+            Route::post('/store', [ServicoOSAnexosController::class, 'store'])->name('anexos.store');
+            Route::any('/destroy/{id}', [ServicoOSAnexosController::class, 'destroy'])->name('anexos.destroy');
+            Route::get('/download/{id}', [ServicoOSAnexosController::class, 'download'])->name('anexos.download');
+        });    
+    });
+
+
 
     Route::prefix('clientes')->group(function () {
         Route::get('/index', [ClientesController::class, 'index'])->name('clientes.index');
@@ -60,6 +76,13 @@ Route::middleware(['auth'])->group(function () {
         Route::any('/form/{id?}', [ContatosController::class, 'form'])->name('contatos.form');
         Route::any('/destroy/{id}', [ContatosController::class, 'destroy'])->name('contatos.destroy');
         Route::post('/store', [ContatosController::class, 'store'])->name('contatos.store');
+    });
+
+    Route::prefix('faturamento')->group(function () {
+        Route::get('/index', [FaturamentoController::class, 'index'])->name('faturamento.index');
+        Route::get('/relatorios', [FaturamentoController::class, 'relatorios'])->name('faturamento.relatorios');
+        Route::get('/notas', [FaturamentoController::class, 'notas'])->name('faturamento.notas');
+        Route::get('/recebimentos', [FaturamentoController::class, 'recebimentos'])->name('faturamento.recebimentos');
     });
 
 

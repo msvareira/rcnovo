@@ -46,6 +46,7 @@ class HomeController extends Controller
             ]);
 
             $body = json_decode($response->getBody(), true);
+            
             if (!empty($body['results'])) {
                 $location = $body['results'][0]['geometry']['location'];
                 $ordem->cliente->latitude = $location['lat'];
