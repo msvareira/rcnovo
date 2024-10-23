@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\OrdemServico;
 use App\Models\Clientes;
 use App\Models\Contatos;
+use App\Models\Preventivas;
+use App\Models\Funcionarios;
 
 class HomeController extends Controller
 {
@@ -31,7 +33,7 @@ class HomeController extends Controller
     public function dashboard()
     {
         $ordensDeServico = OrdemServico::with('cliente')->get();
-        $googleApiKey = 'AIzaSyCWElviRT5t3A1PhEGKEId4EE2EDXOc4w4';
+        $googleApiKey = env('GOOGLE_API_KEY');
         $client = new \GuzzleHttp\Client();
 
         $localidadesOS = [];
@@ -57,17 +59,24 @@ class HomeController extends Controller
                     'cliente_id' => $ordem->cliente->id,
                     'latitude' => $location['lat'],
                     'longitude' => $location['lng'],
-                    'endereço' => $endereco,
+                    'endereco' => $endereco,
                     'cliente' => $ordem->cliente->razao,
                 ];
-
             }
         }
 
+        $preventivasPendentes = Preventivas::with(['cliente', 'funcionario'])
+            ->where('status', '!=', 'Concluído')
+            ->orderby('data_execucao')
+            ->get();
+
+        $funcionarios = Funcionarios::all();
+
         $data = [
             'localidadesOS' => $localidadesOS,
+            'preventivasPendentes' => $preventivasPendentes,
+            'funcionarios' => $funcionarios,
         ];
         return view('dashboard', $data);
-
     }
 }

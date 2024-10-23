@@ -8,6 +8,7 @@ use App\Http\Controllers\FuncionariosController;
 use App\Http\Controllers\ContatosController;
 use App\Http\Controllers\ServicoOSAnexosController;
 use App\Http\Controllers\FaturamentoController;
+use App\Http\Controllers\PreventivasController;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -83,6 +84,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/relatorios', [FaturamentoController::class, 'relatorios'])->name('faturamento.relatorios');
         Route::get('/notas', [FaturamentoController::class, 'notas'])->name('faturamento.notas');
         Route::get('/recebimentos', [FaturamentoController::class, 'recebimentos'])->name('faturamento.recebimentos');
+    });
+
+    Route::prefix('preventivas')->group(function () {
+        Route::get('/index', [PreventivasController::class, 'index'])->name('preventivas.index');
+        Route::any('/form/{id?}', [PreventivasController::class, 'form'])->name('preventivas.form');
+        Route::any('/destroy/{id}', [PreventivasController::class, 'destroy'])->name('preventivas.destroy');
+        Route::post('/store', [PreventivasController::class, 'store'])->name('preventivas.store');
+        Route::post('/executar', [PreventivasController::class, 'executar'])->name('preventivas.executar');
+        Route::get('/print/{id}', [PreventivasController::class, 'print'])->name('preventivas.print');
     });
 
 
