@@ -2,12 +2,14 @@ version: '3'
 
 services:
 
-  refrigeracao-www:
+  refrigeracao-www:  
     restart: always
     container_name: refrigeracao-www
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      GOOGLE_API_KEY: AIzaSyBsWBb4y_TWzAyra9ZWkCcVNIOCmT7otfk
     ports:
       - "7780:80"
     volumes:

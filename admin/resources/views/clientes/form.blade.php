@@ -34,7 +34,15 @@
                           <div class="invalid-feedback">{{ $message }}</div>
                         @enderror                          
                       
-                    </div>                      
+                    </div>       
+                    
+                    <div class="form-group">
+                      <label class="form-label">Nome Fantasia</label>
+                      <input type="text" class="form-control @error('fantasia') is-invalid @enderror" id="fantasia" name="fantasia" value="{{ $cliente->fantasia }}">
+                      @error('fantasia')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                      @enderror
+                    </div>
 
                     <div class="form-group">
                       <label class="form-label" >CPF/CNPJ</label>

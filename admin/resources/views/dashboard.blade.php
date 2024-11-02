@@ -83,7 +83,7 @@
                 });
             }
         </script>
-        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCWElviRT5t3A1PhEGKEId4EE2EDXOc4w4&callback=initMap"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key={{env('GOOGLE_API_KEY')}}&callback=initMap"></script>
 
 
     </div>

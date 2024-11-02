@@ -69,6 +69,8 @@ Route::middleware(['auth'])->group(function () {
         Route::any('/form/{id?}', [FuncionariosController::class, 'form'])->name('funcionarios.form');
         Route::any('/destroy/{id}', [FuncionariosController::class, 'destroy'])->name('funcionarios.destroy');
         Route::post('/store', [FuncionariosController::class, 'store'])->name('funcionarios.store');
+        Route::post('/users/store', [FuncionariosController::class, 'storeUser'])->name('funcionario.users.store');
+        Route::post('/users/update-password', [FuncionariosController::class, 'updatePassword'])->name('funcionario.users.updatePassword');
         
     });
 
@@ -94,6 +96,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/executar', [PreventivasController::class, 'executar'])->name('preventivas.executar');
         Route::get('/print/{id}', [PreventivasController::class, 'print'])->name('preventivas.print');
     });
+
+
 
 
     // Define a GET route with dynamic placeholders for route parameters

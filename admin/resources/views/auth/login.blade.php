@@ -13,11 +13,12 @@
                             <p class="mb-3">Don't have an Account? <a href="{{ route('register') }}"class="link-primary ms-1">Create Account</a></p>
                         -->
                 </div>
+
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
                     <div class="form-group mb-3">
-                        <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="admin@phoenixcoded.com" required autocomplete="email" autofocus id="floatingInput" placeholder="Email Address">
-                        @error('email')
+                        <input type="text" class="form-control @error('login') is-invalid @enderror" name="login" value="admin@phoenixcoded.com" required autocomplete="login" autofocus id="floatingInput" placeholder="Login">
+                        @error('login')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </span>

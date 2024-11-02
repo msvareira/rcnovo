@@ -20,4 +20,11 @@ class Funcionarios extends Model
         'digital',
         'cod_cracha',
     ];
+
+    public function user()
+    {
+        return $this->hasOne(User::class,'funcionario_id');
+    }
+
+
 }
