@@ -40,15 +40,6 @@
 </li>
 
 <li class="pc-item pc-hasmenu">
-    <a href="#" class="pc-link">
-        <span class="pc-micon">
-            <i class="ph-duotone ph-wallet"></i>
-        </span>
-        <span class="pc-mtext">Contas</span>
-    </a>
-</li>
-
-<li class="pc-item pc-hasmenu">
     <a href="{{route('contatos.index')}}" class="pc-link">
         <span class="pc-micon">
             <i class="ph-duotone ph-address-book"></i>
@@ -63,6 +54,23 @@
             <i class="ph-duotone ph-shield-checkered"></i>
         </span>
         <span class="pc-mtext">Preventivas</span>
+    </a>
+</li>
+<li class="pc-item pc-hasmenu">
+    <a href="{{ route('veiculos.index') }}" class="pc-link">
+        <span class="pc-micon">
+            <i class="ph-duotone ph-car"></i>
+        </span>
+        <span class="pc-mtext">Veículos</span>
+    </a>
+</li>
+
+<li class="pc-item pc-hasmenu">
+    <a href="#" class="pc-link">
+        <span class="pc-micon">
+            <i class="ph-duotone ph-wallet"></i>
+        </span>
+        <span class="pc-mtext">Contas</span>
     </a>
 </li>
 

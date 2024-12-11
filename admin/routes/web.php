@@ -9,6 +9,8 @@ use App\Http\Controllers\ContatosController;
 use App\Http\Controllers\ServicoOSAnexosController;
 use App\Http\Controllers\FaturamentoController;
 use App\Http\Controllers\PreventivasController;
+use App\Http\Controllers\VeiculosController;
+use App\Http\Controllers\AbastecimentosController;
 
 use Illuminate\Support\Facades\Auth;
 
@@ -97,6 +99,26 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/print/{id}', [PreventivasController::class, 'print'])->name('preventivas.print');
     });
 
+
+    Route::prefix('veiculos')->group(function () {
+        Route::get('/index', [VeiculosController::class, 'index'])->name('veiculos.index');
+        Route::get('/create', [VeiculosController::class, 'create'])->name('veiculos.create');
+        Route::post('/store', [VeiculosController::class, 'store'])->name('veiculos.store');
+        Route::get('/show/{id}', [VeiculosController::class, 'show'])->name('veiculos.show');
+        Route::get('/edit/{id}', [VeiculosController::class, 'edit'])->name('veiculos.edit');
+        Route::post('/update/{id}', [VeiculosController::class, 'update'])->name('veiculos.update');
+        Route::post('/destroy/{id}', [VeiculosController::class, 'destroy'])->name('veiculos.destroy');
+    });
+
+    Route::prefix('abastecimentos')->group(function () {
+        Route::get('/index', [AbastecimentosController::class, 'index'])->name('abastecimentos.index');
+        Route::get('/create', [AbastecimentosController::class, 'create'])->name('abastecimentos.create');
+        Route::post('/store', [AbastecimentosController::class, 'store'])->name('abastecimentos.store');
+        Route::get('/show/{id}', [AbastecimentosController::class, 'show'])->name('abastecimentos.show');
+        Route::get('/edit/{id}', [AbastecimentosController::class, 'edit'])->name('abastecimentos.edit');
+        Route::post('/update/{id}', [AbastecimentosController::class, 'update'])->name('abastecimentos.update');
+        Route::post('/destroy/{id}', [AbastecimentosController::class, 'destroy'])->name('abastecimentos.destroy');
+    });
 
 
 
