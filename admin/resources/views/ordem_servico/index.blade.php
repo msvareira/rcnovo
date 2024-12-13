@@ -269,6 +269,15 @@
 
             // Adicionar anexos da ListaDeAnexos ao os_form antes de enviar
             $('#os_form').on('submit', function(event) {
+                if ($('#servicosTableBody tr').length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Atenção',
+                        text: 'Por favor, adicione pelo menos um serviço antes de salvar.'
+                    });
+                    event.preventDefault();
+                    return false;
+                }
                 ListaDeAnexos.forEach(function(anexoInput) {
                     $('#os_form').append(anexoInput);
                 });
