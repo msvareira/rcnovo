@@ -386,12 +386,12 @@
                                         ${servico.descricao_execucao}
                                     </td>
                                     <td>
-                                        <input type="hidden" name="servicos[${uniqueId}][valor]" value="${servico.valor}">
-                                        ${servico.valor}
+                                        <input type="hidden" name="servicos[${uniqueId}][valor]" value="${servico.valor ?? ''}">
+                                        ${servico.valor ?? ''}
                                     </td>
                                     <td>
-                                        <input type="hidden" name="servicos[${uniqueId}][duracao]" value="${servico.duracao}">
-                                        ${servico.duracao}
+                                        <input type="hidden" name="servicos[${uniqueId}][duracao]" value="${servico.duracao ?? ''}">
+                                        ${servico.duracao && servico.duracao != 0 ? servico.duracao : ''}
                                     </td>
                                     <td>
                                         ${anexosHtml}
@@ -402,7 +402,7 @@
                                 </tr>
                             `;
                             servicosTableBody.append(newRow);
-                            total += parseFloat(servico.valor.replace('.', '').replace(',', '.'));
+                            total += parseFloat(servico.valor ? servico.valor.replace('.', '').replace(',', '.') : 0);
 
                             $('.currency').mask('000.000.000.000.000,00', {
                                 reverse: true
@@ -436,7 +436,7 @@
                 $('#servicosTableBody tr').each(function() {
                     var valor = $(this).find('input[name*="[valor]"]').val();                    
                     
-                    total += parseFloat(valor.replace('.','').replace(',', '.'));
+                    total += parseFloat(valor ? valor.replace('.','').replace(',', '.') : 0);
                 });
                 $('#total_servicos').text(total.toLocaleString('pt-BR', {
                     minimumFractionDigits: 2,
@@ -492,12 +492,12 @@
                         ${descricaoServico}
                     </td>
                     <td>
-                        <input type="hidden" name="servicos[${uniqueId}][valor]" value="${valorServico}">
-                        ${valorServico}
+                        <input type="hidden" name="servicos[${uniqueId}][valor]" value="${valorServico || ''}">
+                        ${valorServico || ''}
                     </td>
                     <td>
-                        <input type="hidden" name="servicos[${uniqueId}][duracao]" value="${duracaoServico}">
-                        ${duracaoServico}
+                        <input type="hidden" name="servicos[${uniqueId}][duracao]" value="${duracaoServico || ''}">
+                        ${duracaoServico || ''}
                     </td>
                     <td>
                         ${anexosHtml}
